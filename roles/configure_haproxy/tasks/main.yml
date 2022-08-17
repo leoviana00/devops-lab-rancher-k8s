@@ -1,0 +1,77 @@
+---
+- name: Instalar pacotes de dependência do haproxy
+  apt:
+    pkg:
+      - libipset-dev
+      - keepalived
+      - net-tools
+      - git
+      - ca-certificates
+      - gcc
+      - libc6-dev
+      - liblua5.3-dev
+      - libpcre3-dev
+      - libssl-dev
+      - libsystemd-dev
+      - make
+      - wget
+      - zlib1g-dev
+    state: present
+    update_cache: yes
+
+- name: Checkout do repositório do git
+  git:
+    repo: "{{ haproxy_git }}"
+    dest: haproxy
+    version: "{{ haproxy_version }}"
+
+- name: Fazer o build do HaProxy
+  make:
+    chdir: /home/vagrant/haproxy
+    target: all
+    params:
+      TARGET: linux-glibc
+      USE_LUA: 1
+      USE_OPENSSL: 1
+      USE_PCRE: 1
+      USE_ZLIB: 1
+      USE_SYSTEMD: 1
+
+- name: Instalar HaProxy
+  make:
+    chdir: /home/vagrant/haproxy
+    target: install-bin
+
+- name: Copiar binario
+  command: ln -sf /usr/local/sbin/haproxy /usr/bin/haproxy
+
+- name: Criar diretório dos arquivos
+  file:
+    path: /etc/haproxy
+    state: directory
+
+- name: Mover template de haproxy conf file
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    remote_src: false
+
+- name: Checar haproxy
+  command: haproxy -c -f /etc/haproxy/haproxy.cfg
+  register: check_result
+
+- name: Copiar servico
+  copy:
+    src: haproxy.service
+    dest: /lib/systemd/system/haproxy.service
+
+- name: Restart systemd
+  systemd:
+    daemon-reload: true
+
+- name: Restartar serviço
+  when: '"Configuration file is valid" in check_result.stdout'
+  command: echo Restartando
+  notify:
+    - Restartar haproxy
+

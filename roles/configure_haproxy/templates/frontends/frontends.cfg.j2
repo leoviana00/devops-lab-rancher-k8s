@@ -1,0 +1,19 @@
+
+{% for frontend in configs.haproxy_frontend %}
+frontend frontend_{{frontend.name}}
+  {% for bind in frontend.binds %}
+  bind {{bind}}
+  {% endfor %}
+  option forwardfor
+  http-request set-header X-Forwarded-Proto https if { ssl_fc }
+  capture request header Host len 200
+  log-format "%ci:%cp [%tr] %ft %b/%s %TR/%Tw/%Tc/%Tr/%Ta %ST %B %CC     %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r    { %[capture.req.hdr(0)]} ==> %[capture.req.hdr(1)]%HU"
+  maxconn {{ frontend.maxcoon | default('2000') }}
+  {% for backend in frontend.use_backend | default([]) %}
+  use_backend backend_{{ backend.name }} {% if backend.acl is defined %}if { {{ backend.acl }} }{% endif %}
+
+  {% endfor %}
+  {% if frontend.name == 'main' %}
+  {% include 'haproxy/frontends/acls-main.cfg' %}
+  {% endif %}
+{% endfor %}
