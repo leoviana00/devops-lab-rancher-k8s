@@ -1,33 +1,22 @@
-IMAGE_NAME = "bento/ubuntu-20.04"
-HA = 1
-
-ENV['VAGRANT_NO_PARALLEL'] = 'yes'
-
 Vagrant.configure("2") do |config|
-    config.ssh.insert_key = false
 
-    config.vm.provision "shell" do |s|
-        ssh_pub_key = File.readlines("../../keys/kubespray.pub").first.strip
-        s.inline = <<-SHELL
-        echo "Ambiente para laboratório: haproxy" > /tmp/vagrant.txt
-        echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys
-        echo #{ssh_pub_key} >> /root/.ssh/authorized_keys
-      SHELL
-    end
-
-    (1..HA).each do |i|
-        config.vm.define "lb-#{i}" do |node|
-            node.vm.box = IMAGE_NAME
-            node.vm.network "private_network", ip: "192.168.50.#{i + 90}"
-            node.vm.network "forwarded_port", guest: 80, host: 80
-            node.vm.network "forwarded_port", guest: 81, host: 81
-            node.vm.hostname = "lb-#{i}"
-
-            node.vm.provider :virtualbox do |v|
-                v.name    = "lb-#{i}"
-                v.memory = 3096
-                v.cpus = 2
-            end
+    NodeCount = 2
+  
+    (1..NodeCount).each do |i|
+        config.vm.define "haproxy_#{i}" do |haproxy|
+            haproxy.vm.box = "oraclelinux/7"
+            haproxy.vm.box_url = "https://oracle.github.io/vagrant-projects/boxes/oraclelinux/7.json"
+            haproxy.vm.network "private_network", name: "vboxnet3", ip: "192.168.50.7#{i}"
+            haproxy.vm.network "private_network", name: "vboxnet2", ip: "192.168.20.7#{i}"
+            haproxy.vm.hostname = "haproxy-#{i}"
+            haproxy.vm.provision "file", source: "haproxy.service", destination: "/tmp/haproxy.service"
+            haproxy.vm.provision "file", source: "haproxy.cfg", destination: "/tmp/haproxy.cfg"
+            # haproxy.vm.provision "file", source: "keepalived.conf", destination: "/tmp/keepalived.conf"
+            haproxy.vm.provision "shell", path: "disable-selinux.sh"
+            # haproxy.vm.provision "shell", path: "keepalived.sh"
+            haproxy.vm.provision "shell", path: "haproxy.sh"
+            haproxy.vm.provision "shell", path: "haproxy-postprocessor.sh"
         end
     end
-end
+  
+  end
