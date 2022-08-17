@@ -20,7 +20,6 @@
 !kubespray/**/*
 !roles/
 !roles/**/*
-!Vagrantfile
 !vagrant
 !vagrant/**/*
 !site.yaml
