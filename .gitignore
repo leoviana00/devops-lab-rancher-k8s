@@ -25,3 +25,5 @@
 !site.yaml
 !docker/**/*
 !docker
+!ingress-controller/**/*
+!ingress-controller
