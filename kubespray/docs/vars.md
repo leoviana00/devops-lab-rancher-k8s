@@ -3,7 +3,7 @@
 ## Generic Ansible variables
 
 You can view facts gathered by Ansible automatically
-[here](https://docs.ansible.com/ansible/playbooks_variables.html#information-discovered-from-systems-facts).
+[here](https://docs.ansible.com/ansible/latest/user_guide/playbooks_vars_facts.html#ansible-facts).
 
 Some variables of note include:
 
@@ -18,14 +18,18 @@ Some variables of note include:
 * *docker_version* - Specify version of Docker to used (should be quoted
   string). Must match one of the keys defined for *docker_versioned_pkg*
   in `roles/container-engine/docker/vars/*.yml`.
+* *containerd_version* - Specify version of containerd to use when setting `container_manager` to `containerd`
+* *docker_containerd_version* - Specify which version of containerd to use when setting `container_manager` to `docker`
 * *etcd_version* - Specify version of ETCD to use
-* *ipip* - Enables Calico ipip encapsulation by default
+* *calico_ipip_mode* - Configures Calico ipip encapsulation - valid values are 'Never', 'Always' and 'CrossSubnet' (default 'Never')
+* *calico_vxlan_mode* - Configures Calico vxlan encapsulation - valid values are 'Never', 'Always' and 'CrossSubnet' (default 'Always')
+* *calico_network_backend* - Configures Calico network backend - valid values are 'none', 'bird' and 'vxlan' (default 'vxlan')
 * *kube_network_plugin* - Sets k8s network plugin (default Calico)
 * *kube_proxy_mode* - Changes k8s proxy mode to iptables mode
 * *kube_version* - Specify a given Kubernetes version
 * *searchdomains* - Array of DNS domains to search when looking up hostnames
 * *nameservers* - Array of nameservers to use for DNS lookup
-* *preinstall_selinux_state* - Set selinux state, permitted values are permissive and disabled.
+* *preinstall_selinux_state* - Set selinux state, permitted values are permissive, enforcing and disabled.
 
 ## Addressing variables
 
@@ -35,9 +39,12 @@ Some variables of note include:
   public/floating and private IPs.
 * *ansible_default_ipv4.address* - Not Kubespray-specific, but it is used if ip
   and access_ip are undefined
+* *ip6* - IPv6 address to use for binding services. (host var)
+  If *enable_dual_stack_networks* is set to ``true`` and *ip6* is defined,
+  kubelet's ``--node-ip`` and node's ``InternalIP`` will be the combination of *ip* and *ip6*.
 * *loadbalancer_apiserver* - If defined, all hosts will connect to this
-  address instead of localhost for kube-masters and kube-master[0] for
-  kube-nodes. See more details in the
+  address instead of localhost for kube_control_planes and kube_control_plane[0] for
+  kube_nodes. See more details in the
   [HA guide](/docs/ha-mode.md).
 * *loadbalancer_apiserver_localhost* - makes all hosts to connect to
   the apiserver internally load balanced endpoint. Mutual exclusive to the
@@ -50,7 +57,11 @@ Kubernetes needs some parameters in order to get deployed. These are the
 following default cluster parameters:
 
 * *cluster_name* - Name of cluster (default is cluster.local)
-* *container_manager* - Container Runtime to install in the nodes (default is docker)
+* *container_manager* - Container Runtime to install in the nodes (default is containerd)
+* *image_command_tool* - Tool used to pull images (default depends on `container_manager`
+  and is `nerdctl` for `containerd`, `crictl` for `crio`, `docker` for `docker`)
+* *image_command_tool_on_localhost* - Tool used to pull images on localhost
+  (default is equal to `image_command_tool`)
 * *dns_domain* - Name of cluster DNS domain (default is cluster.local)
 * *kube_network_plugin* - Plugin to use for container networking
 * *kube_service_addresses* - Subnet for cluster IPs (default is
@@ -58,14 +69,14 @@ following default cluster parameters:
 * *kube_pods_subnet* - Subnet for Pod IPs (default is 10.233.64.0/18). Must not
   overlap with kube_service_addresses.
 * *kube_network_node_prefix* - Subnet allocated per-node for pod IPs. Remaining
-  bits in kube_pods_subnet dictates how many kube-nodes can be in cluster. Setting this > 25 will
+  bits in kube_pods_subnet dictates how many kube_nodes can be in cluster. Setting this > 25 will
   raise an assertion in playbooks if the `kubelet_max_pods` var also isn't adjusted accordingly
   (assertion not applicable to calico which doesn't use this as a hard limit, see
   [Calico IP block sizes](https://docs.projectcalico.org/reference/resources/ippool#block-sizes).
 * *enable_dual_stack_networks* - Setting this to true will provision both IPv4 and IPv6 networking for pods and services.
 * *kube_service_addresses_ipv6* - Subnet for cluster IPv6 IPs (default is ``fd85:ee78:d8a6:8607::1000/116``). Must not overlap with ``kube_pods_subnet_ipv6``.
 * *kube_pods_subnet_ipv6* - Subnet for Pod IPv6 IPs (default is ``fd85:ee78:d8a6:8607::1:0000/112``). Must not overlap with ``kube_service_addresses_ipv6``.
-* *kube_network_node_prefix_ipv6* - Subnet allocated per-node for pod IPv6 IPs. Remaining bits in ``kube_pods_subnet_ipv6`` dictates how many kube-nodes can be in cluster.
+* *kube_network_node_prefix_ipv6* - Subnet allocated per-node for pod IPv6 IPs. Remaining bits in ``kube_pods_subnet_ipv6`` dictates how many kube_nodes can be in cluster.
 * *skydns_server* - Cluster IP for DNS (default is 10.233.0.3)
 * *skydns_server_secondary* - Secondary Cluster IP for CoreDNS used with coredns_dual deployment (default is 10.233.0.4)
 * *enable_coredns_k8s_external* - If enabled, it configures the [k8s_external plugin](https://coredns.io/plugins/k8s_external/)
@@ -78,6 +89,8 @@ following default cluster parameters:
   OpenStack (default is unset)
 * *kube_feature_gates* - A list of key=value pairs that describe feature gates for
   alpha/experimental Kubernetes features. (defaults is `[]`)
+* *kubeadm_feature_gates* - A list of key=value pairs that describe feature gates for
+  alpha/experimental Kubeadm features. (defaults is `[]`)
 * *authorization_modes* - A list of [authorization mode](
 https://kubernetes.io/docs/admin/authorization/#using-flags-for-your-authorization-module)
   that the cluster should be configured for. Defaults to `['Node', 'RBAC']`
@@ -115,14 +128,15 @@ Stack](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/dns-stack.m
 * *docker_options* - Commonly used to set
   ``--insecure-registry=myregistry.mydomain:5000``
 * *docker_plugins* - This list can be used to define [Docker plugins](https://docs.docker.com/engine/extend/) to install.
-* *containerd_config* - Controls some parameters in containerd configuration file (usually /etc/containerd/config.toml).
+* *containerd_default_runtime* - Sets the default Containerd runtime used by the Kubernetes CRI plugin.
+* *containerd_additional_runtimes* - Sets the additional Containerd runtimes used by the Kubernetes CRI plugin.
   [Default config](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/container-engine/containerd/defaults/main.yml) can be overriden in inventory vars.
 * *http_proxy/https_proxy/no_proxy/no_proxy_exclude_workers/additional_no_proxy* - Proxy variables for deploying behind a
   proxy. Note that no_proxy defaults to all internal cluster IPs and hostnames
   that correspond to each node.
-* *kubelet_cgroup_driver* - Allows manual override of the
-  cgroup-driver option for Kubelet. By default autodetection is used
-  to match Docker configuration.
+* *kubelet_cgroup_driver* - Allows manual override of the cgroup-driver option for Kubelet.
+  By default autodetection is used to match container manager configuration.
+  `systemd` is the preferred driver for `containerd` though it can have issues with `cgroups v1` and `kata-containers` in which case you may want to change to `cgroupfs`.
 * *kubelet_rotate_certificates* - Auto rotate the kubelet client certificates by requesting new certificates
   from the kube-apiserver when the certificate expiration approaches.
 * *kubelet_rotate_server_certificates* - Auto rotate the kubelet server certificates by requesting new certificates
@@ -132,14 +146,12 @@ Stack](https://github.com/kubernetes-sigs/kubespray/blob/master/docs/dns-stack.m
   [kubelet-rubber-stamp](https://github.com/kontena/kubelet-rubber-stamp).
 * *node_labels* - Labels applied to nodes via kubelet --node-labels parameter.
   For example, labels can be set in the inventory as variables or more widely in group_vars.
-  *node_labels* can be defined either as a dict or a comma-separated labels string:
+  *node_labels* can only be defined as a dict:
 
 ```yml
 node_labels:
   label1_name: label1_value
   label2_name: label2_value
-
-node_labels: "label1_name=label1_value,label2_name=label2_value"
 ```
 
 * *node_taints* - Taints applied to nodes via kubelet --register-with-taints parameter.
@@ -162,13 +174,21 @@ node_taints:
   * `audit_policy_file`: "{{ kube_config_dir }}/audit-policy/apiserver-audit-policy.yaml"
 
   By default, the `audit_policy_file` contains [default rules](https://github.com/kubernetes-sigs/kubespray/blob/master/roles/kubernetes/control-plane/templates/apiserver-audit-policy.yaml.j2) that can be overridden with the `audit_policy_custom_rules` variable.
+* *kubernetes_audit_webhook* - When set to `true`, enables the webhook audit backend.
+  The webhook parameters can be tuned via the following variables (which default values are shown below):
+  * `audit_webhook_config_file`: "{{ kube_config_dir }}/audit-policy/apiserver-audit-webhook-config.yaml"
+  * `audit_webhook_server_url`: `"https://audit.app"`
+  * `audit_webhook_server_extra_args`: {}
+  * `audit_webhook_mode`: batch
+  * `audit_webhook_batch_max_size`: 100
+  * `audit_webhook_batch_max_wait`: 1s
 
 ### Custom flags for Kube Components
 
 For all kube components, custom flags can be passed in. This allows for edge cases where users need changes to the default deployment that may not be applicable to all deployments.
 
 Extra flags for the kubelet can be specified using these variables,
-in the form of dicts of key-value pairs of configuration parameters that will be inserted into the kubelet YAML config file. The `kubelet_node_config_extra_args` apply kubelet settings only to nodes and not masters. Example:
+in the form of dicts of key-value pairs of configuration parameters that will be inserted into the kubelet YAML config file. The `kubelet_node_config_extra_args` apply kubelet settings only to nodes and not control planes. Example:
 
 ```yml
 kubelet_config_extra_args:
@@ -190,7 +210,7 @@ Previously, the same parameters could be passed as flags to kubelet binary with 
 * *kubelet_custom_flags*
 * *kubelet_node_custom_flags*
 
-The `kubelet_node_custom_flags` apply kubelet settings only to nodes and not masters. Example:
+The `kubelet_node_custom_flags` apply kubelet settings only to nodes and not control planes. Example:
 
 ```yml
 kubelet_custom_flags:

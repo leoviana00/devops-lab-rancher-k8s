@@ -44,8 +44,7 @@ spec:
       containers:
         - args:
             - --debug=$(CILIUM_DEBUG)
-            - --kvstore=etcd
-            - --kvstore-opt=etcd.config=/var/lib/etcd-config/etcd.config
+            - --config-dir=/tmp/cilium/config-map
           command:
             - cilium-operator
           env:
@@ -136,11 +135,16 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 3
           volumeMounts:
+{% if cilium_identity_allocation_mode == "kvstore" %}
             - mountPath: /var/lib/etcd-config
               name: etcd-config-path
               readOnly: true
             - mountPath: "{{cilium_cert_dir}}"
               name: etcd-secrets
+              readOnly: true
+{% endif %}
+            - mountPath: /tmp/cilium/config-map
+              name: cilium-config-path
               readOnly: true
       dnsPolicy: ClusterFirst
       priorityClassName: system-node-critical
@@ -151,6 +155,7 @@ spec:
       tolerations:
         - operator: Exists
       volumes:
+{% if cilium_identity_allocation_mode == "kvstore" %}
         # To read the etcd config stored in config maps
         - configMap:
             defaultMode: 420
@@ -163,3 +168,7 @@ spec:
         - name: etcd-secrets
           hostPath:
             path: "{{cilium_cert_dir}}"
+{% endif %}
+        - configMap:
+            name: cilium-config
+          name: cilium-config-path

@@ -3,6 +3,7 @@
 ignore_assert_errors: false
 
 epel_enabled: false
+# Kubespray sets this to true after clusterDNS is running to apply changes to the host resolv.conf
 dns_late: false
 
 common_required_pkgs:
@@ -14,6 +15,7 @@ common_required_pkgs:
   - e2fsprogs
   - xfsprogs
   - ebtables
+  - bash-completion
 
 # Set to true if your network does not support IPv6
 # This maybe necessary for pulling Docker images from

@@ -12,25 +12,19 @@ platforms:
     cpus: 2
     memory: 1024
     groups:
-      - kube-master
-  - name: centos7
-    box: centos/7
+      - kube_control_plane
+  - name: almalinux8
+    box: almalinux/8
     cpus: 2
     memory: 1024
     groups:
-      - kube-master
-  - name: centos8
-    box: centos/8
-    cpus: 2
-    memory: 1024
-    groups:
-      - kube-master
+      - kube_control_plane
   - name: fedora
-    box: fedora/33-cloud-base
+    box: fedora/35-cloud-base
     cpus: 2
     memory: 1024
     groups:
-      - kube-master
+      - kube_control_plane
 provisioner:
   name: ansible
   env:
@@ -38,6 +32,7 @@ provisioner:
   config_options:
     defaults:
       callback_whitelist: profile_tasks
+      timeout: 120
   lint:
     name: ansible-lint
     options:

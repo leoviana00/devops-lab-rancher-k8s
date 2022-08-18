@@ -78,6 +78,10 @@ variable "master_volume_type" {
   default = "Default"
 }
 
+variable "node_volume_type" {
+  default = "Default"
+}
+
 variable "public_key_path" {
   description = "The path of the ssh pub key"
   default     = "~/.ssh/id_rsa.pub"
@@ -144,6 +148,12 @@ variable "use_neutron" {
   default     = 1
 }
 
+variable "port_security_enabled" {
+  description = "Enable port security on the internal network"
+  type        = bool
+  default     = "true"
+}
+
 variable "subnet_cidr" {
   description = "Subnet CIDR block."
   type        = string
@@ -158,6 +168,12 @@ variable "dns_nameservers" {
 
 variable "k8s_master_fips" {
   description = "specific pre-existing floating IPs to use for master nodes"
+  type        = list(string)
+  default     = []
+}
+
+variable "bastion_fips" {
+  description = "specific pre-existing floating IPs to use for bastion node"
   type        = list(string)
   default     = []
 }
@@ -177,12 +193,12 @@ variable "external_net" {
 }
 
 variable "supplementary_master_groups" {
-  description = "supplementary kubespray ansible groups for masters, such kube-node"
+  description = "supplementary kubespray ansible groups for masters, such kube_node"
   default     = ""
 }
 
 variable "supplementary_node_groups" {
-  description = "supplementary kubespray ansible groups for worker nodes, such as kube-ingress"
+  description = "supplementary kubespray ansible groups for worker nodes, such as kube_ingress"
   default     = ""
 }
 
@@ -233,8 +249,19 @@ variable "use_access_ip" {
   default = 1
 }
 
-variable "use_server_groups" {
-  default = false
+variable "master_server_group_policy" {
+  description = "desired server group policy, e.g. anti-affinity"
+  default     = ""
+}
+
+variable "node_server_group_policy" {
+  description = "desired server group policy, e.g. anti-affinity"
+  default     = ""
+}
+
+variable "etcd_server_group_policy" {
+  description = "desired server group policy, e.g. anti-affinity"
+  default     = ""
 }
 
 variable "router_id" {
@@ -277,4 +304,10 @@ variable "image_master" {
 variable "image_master_uuid" {
   description = "uuid of image to be used on master nodes. If empty defaults to image_uuid"
   default     = ""
+}
+
+variable "group_vars_path" {
+  description = "path to the inventory group vars directory"
+  type        = string
+  default     = "./group_vars"
 }

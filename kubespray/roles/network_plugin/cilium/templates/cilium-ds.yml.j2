@@ -32,8 +32,6 @@ spec:
             topologyKey: kubernetes.io/hostname
       containers:
       - args:
-        - --kvstore=etcd
-        - --kvstore-opt=etcd.config=/var/lib/etcd-config/etcd.config
         - --config-dir=/tmp/cilium/config-map
 {% if cilium_mtu != "" %}
         - --mtu={{ cilium_mtu }}
@@ -148,12 +146,14 @@ spec:
           mountPath: {{ cri_socket }}
           readOnly: true
 {% endif %}
+{% if cilium_identity_allocation_mode == "kvstore" %}
         - mountPath: /var/lib/etcd-config
           name: etcd-config-path
           readOnly: true
         - mountPath: "{{cilium_cert_dir}}"
           name: etcd-secrets
           readOnly: true
+{% endif %}
         - mountPath: /var/lib/cilium/clustermesh
           name: clustermesh-secrets
           readOnly: true
@@ -166,6 +166,16 @@ spec:
           readOnly: true
         - mountPath: /run/xtables.lock
           name: xtables-lock
+{% if cilium_ipsec_enabled %}
+        - mountPath: /etc/ipsec
+          name: cilium-ipsec-secrets
+          readOnly: true
+{% endif %}
+{% if cilium_hubble_install %}
+        - mountPath: /var/lib/cilium/tls/hubble
+          name: hubble-tls
+          readOnly: true
+{% endif %}
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       hostPID: false
@@ -191,7 +201,11 @@ spec:
               key: wait-bpf-mount
               name: cilium-config
               optional: true
+{% if cilium_version | regex_replace('v') is version('1.9', '<') %}
         image: "{{cilium_init_image_repo}}:{{cilium_init_image_tag}}"
+{% else %}
+        image: "{{cilium_image_repo}}:{{cilium_image_tag}}"
+{% endif %}
         imagePullPolicy: {{ k8s_image_pull_policy }}
         name: clean-cilium-state
         securityContext:
@@ -258,6 +272,7 @@ spec:
           path: /run/xtables.lock
           type: FileOrCreate
         name: xtables-lock
+{% if cilium_identity_allocation_mode == "kvstore" %}
         # To read the etcd config stored in config maps
       - configMap:
           defaultMode: 420
@@ -270,6 +285,7 @@ spec:
       - name: etcd-secrets
         hostPath:
           path: "{{cilium_cert_dir}}"
+{% endif %}
         # To read the clustermesh configuration
       - name: clustermesh-secrets
         secret:
@@ -280,6 +296,30 @@ spec:
       - configMap:
           name: cilium-config
         name: cilium-config-path
+{% if cilium_ipsec_enabled %}
+      - name: cilium-ipsec-secrets
+        secret:
+          secretName: cilium-ipsec-keys
+{% endif %}
+{% if cilium_hubble_install %}
+      - name: hubble-tls
+        projected:
+          sources:
+          - secret:
+              name: hubble-server-certs
+              items:
+                - key: tls.crt
+                  path: server.crt
+                - key: tls.key
+                  path: server.key
+              optional: true
+          - configMap:
+              name: hubble-ca-cert
+              items:
+                - key: ca.crt
+                  path: client-ca.crt
+              optional: true
+{% endif %}
   updateStrategy:
     rollingUpdate:
       # Specifies the maximum number of Pods that can be unavailable during the update process.

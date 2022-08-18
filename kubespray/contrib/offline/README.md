@@ -1,4 +1,8 @@
-# Container image collecting script for offline deployment
+# Offline deployment
+
+## manage-offline-container-images.sh
+
+Container image collecting script for offline deployment
 
 This script has two features:
 (1) Get container images from an environment which is deployed online.
@@ -19,3 +23,24 @@ Step(2) can be operated with:
 ```shell
 manage-offline-container-images.sh   register
 ```
+
+## generate_list.sh
+
+This script generates the list of downloaded files and the list of container images by `roles/download/defaults/main.yml` file.
+
+Run this script will execute `generate_list.yml` playbook in kubespray root directory and generate four files,
+all downloaded files url in files.list, all container images in images.list, jinja2 templates in *.template.
+
+```shell
+./generate_list.sh
+tree temp
+temp
+├── files.list
+├── files.list.template
+├── images.list
+└── images.list.template
+0 directories, 5 files
+```
+
+In some cases you may want to update some component version, you can declare version variables in ansible inventory file or group_vars,
+then run `./generate_list.sh -i [inventory_file]` to update file.list and images.list.
