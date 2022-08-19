@@ -1,8 +1,0 @@
----
-- name: Deploy Haproxy
-  hosts: lb-1
-  remote_user: vagrant
-  become: True
-  tags: haproxy
-  roles:
-    - role: configure_haproxy
