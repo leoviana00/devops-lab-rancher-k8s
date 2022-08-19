@@ -23,7 +23,5 @@
 !vagrant
 !vagrant/**/*
 !site.yaml
-!docker/**/*
-!docker
-!ingress-controller/**/*
-!ingress-controller
+!configuracao-lab/**/*
+!configuracao-lab

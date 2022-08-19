@@ -1,0 +1,2 @@
+## RANCHER
+- Instalar o RANCHER
