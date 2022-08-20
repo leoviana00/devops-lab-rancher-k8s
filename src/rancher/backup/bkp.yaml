@@ -1,0 +1,11 @@
+apiVersion: resources.cattle.io/v1
+kind: Restore
+metadata:
+  name: restore-rmv2h
+spec:
+  backupFilename: rancher-backup-1-62569cd7-bee3-4c45-b0d3-8ca4a7d23caa-2022-08-19T17-00-00Z.tar.gz
+  volumeMounts:
+    - name: test-volume
+      mountPath: /tmp
+      
+  

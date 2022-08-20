@@ -1,0 +1,15 @@
+apiVersion: resources.cattle.io/v1
+kind: Restore
+metadata:
+  name: restore-rmv2h
+spec:
+  backupFilename: rancher-backup-1-62569cd7-bee3-4c45-b0d3-8ca4a7d23caa-2022-08-19T17-00-00Z.tar.gz
+  prune: false
+  storageLocation:
+    s3:
+      credentialSecretName: s3-creds
+      credentialSecretNamespace: default
+      bucketName: bucket-teste-rancher
+      folder: ecm1
+      region: us-west-2
+      endpoint: s3.us-west-2.amazonaws.com
