@@ -53,7 +53,7 @@ helm install rancher rancher-latest/rancher \
 ## Password RANCHER
 
 - kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}{{"\n"}}'
-- password: HSCq3bRfSoYZ7wD3
+- password: hWvw0g90RGpud6nT
 
 
 ## Instalação do Haproxy Ingress Controller
@@ -87,3 +87,7 @@ kubectl logs -n cattle-system -l app.kubernetes.io/name=rancher-backup -f
 
 ## Basic SSL config 
 - https://rancher.com/docs/rancher/v1.5/en/installing-rancher/installing-server/basic-ssl-config/
+
+## Criar certificado
+
+cat lab.k8s.rancher.crt.pem lab.k8s.rancher.key.pem > rancher.pem

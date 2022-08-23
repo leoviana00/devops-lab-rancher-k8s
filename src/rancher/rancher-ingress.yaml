@@ -16,7 +16,7 @@ spec:
     - host: lab.k8s.rancher
       http:
         paths:
-        - path: /
+        - path: /rancher
           pathType: Prefix
           backend:
             service:

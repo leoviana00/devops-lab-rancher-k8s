@@ -4,17 +4,15 @@ metadata:
     name: echo-ingress
     namespace: default
     annotations:
-        ingress.kubernetes.io/rewrite-target: /
+        # ingress.kubernetes.io/rewrite-target: /
         # haproorwarded-for: 'true'
         # haproxy.org/loadxy.org/check: 'true'
         # haproxy.org/f-balance: leastconn
-        # ingress.class: haproxy
-        # haproxy.org/path-rewrite: "/"
+        haproxy.org/path-rewrite: "/"
         # kubernetes.io/ingress.class: haproxy
 spec:
     rules:
-    - host: lab.k8s.rancher
-      http:
+    - http:
         paths:
         - path: /echo
           pathType: Prefix
