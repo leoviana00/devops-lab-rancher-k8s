@@ -1,5 +1,20 @@
 ## Haproxy 
 
-````bash
+```docker-compose
+haproxy:
+    image: haproxy:1.8
+    volumes:
+        - ./haproxy:/haproxy-override
+        - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+        - ./haproxy/rancher.pem:/usr/local/etc/haproxy/rancher.pem
+    ports:
+        - "80:80"
+        - "81:81"
+        - "441:441"
+        - "6443:6443"
+        - "443:443"
+```
+
+```bash
 docker-compose up -d
 ```
