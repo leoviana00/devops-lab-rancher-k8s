@@ -1,6 +1,6 @@
 ## Criando Vm's com vagrant
 
 ```bash
-cd cluaster-k8s
+cd cluster-k8s
 vagrant up
 ```
