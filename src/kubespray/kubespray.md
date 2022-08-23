@@ -7,4 +7,4 @@
 4. CONFIG_FILE=inventory/lab-k8s/hosts.yaml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 5. ansible-playbook -i inventory/lab-k8s/hosts.yaml  --become -u vagrant --become-user=root cluster.yml
 
-[KUBESPRAY README](/src/kubespray/kubespray.md)
+[Kebespray Readme ](/src/kubespray/README.md)
