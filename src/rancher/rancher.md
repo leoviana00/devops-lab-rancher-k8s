@@ -1,5 +1,9 @@
-## RANCHER
-- Instalar o RANCHER
+<h1 align="center">Rancher</h1>
+
+<p align="center">
+  <img alt="Haproxy" src="../../images/rancher1.png">
+</p>
+
 
 ## Instalação do RANCHER
 
