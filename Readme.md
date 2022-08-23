@@ -36,6 +36,7 @@
 - Cert-manager
 
 ## 🚀 Etapas
+
 -  Subir um balanceador dockerizado localmente.
 -  Subir um cluster kubernetes
 -  Instalar o Helm
