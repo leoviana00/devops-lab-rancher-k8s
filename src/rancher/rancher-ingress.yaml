@@ -4,9 +4,9 @@ metadata:
   name: rancher-ingress
   namespace: cattle-system
   annotations:
-    haproxy.org/path-rewrite: "/"
+    # haproxy.org/path-rewrite: "/"
     # kubernetes.io/ingress.class: "haproxy"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
   tls:
     - hosts:
@@ -16,10 +16,10 @@ spec:
     - host: lab.k8s.rancher
       http:
         paths:
-        - path: /rancher
+        - path: /
           pathType: Prefix
           backend:
             service:
               name: rancher
               port:
-                number: 443
+                number: 80
