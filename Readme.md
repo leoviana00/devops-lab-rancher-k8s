@@ -37,14 +37,16 @@
 
 ## 🚀 Etapas
 
--  Subir um balanceador dockerizado localmente.
--  Subir um cluster kubernetes
--  Instalar o Helm
--  Deployar o Cert-manager
--  Criar um emissor
--  Deployar o Rancher
--  Gerar certificado
--  Configurar um Ingress
+0. [Subir um balanceador dockerizado localmente.](/src/balanceador/Readme.md) 
+1. [Criar as Vm's.](/src/vagrant/Readme.md)
+2. [Subir um cluster kubernetes.](/src/kubespray/README.md)
+3. [Instalar o Helm.](/src/helm/helm.md)
+4. [Deployar o Cert-manager.](/src/helm/helm.md)
+5. [Criar um emissor.]
+6. [Deployar o Rancher.](/src/rancher/rancher.md)
+7. [Gerar certificado.]
+8. [Configurar um Ingress.]
+
 
 ## Subindo kubernetes utilizando o `kubespray`
 
