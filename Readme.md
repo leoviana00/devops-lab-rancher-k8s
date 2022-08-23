@@ -41,7 +41,7 @@
 1. [Criar as Vm's.](/src/vagrant/Readme.md)
 2. [Subir um cluster kubernetes.](/src/kubespray/README.md)
 3. [Instalar o Helm.](/src/helm/helm.md)
-4. [Deployar o Cert-manager.](/src/helm/helm.md)
+4. [Deployar o Cert-manager.](/src/rancher/cert-manager.md)
 5. [Criar um emissor.]
 6. [Deployar o Rancher.](/src/rancher/rancher.md)
 7. [Gerar certificado.]
