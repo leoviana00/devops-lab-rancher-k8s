@@ -42,10 +42,10 @@
 2. [Subir um cluster kubernetes.](/src/kubespray/README.md)
 3. [Instalar o Helm.](/src/helm/helm.md)
 4. [Deployar o Cert-manager.](/src/rancher/cert-manager.md)
-5. [Criar um emissor.]
+5. [Criar um emissor.](/src/rancher/cluster-issue.md)
 6. [Deployar o Rancher.](/src/rancher/rancher.md)
-7. [Gerar certificado.]
-8. [Configurar um Ingress.]
+7. [Gerar certificado.](/src/cert-manager/README.md)
+8. [Configurar um Ingress.](/src/rancher/ingress.md)
 
 
 ## Subindo kubernetes utilizando o `kubespray`
