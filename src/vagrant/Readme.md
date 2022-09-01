@@ -83,3 +83,5 @@ end
 - OBS: With VirtualBox, the default NAT network setup uses 10.0.2.2 as the
 host's IP address, and 10.0.2.x (where 2<x<255) for the VMs' IP
 addresses.
+
+- https://www.virtualbox.org/manual/ch06.html
