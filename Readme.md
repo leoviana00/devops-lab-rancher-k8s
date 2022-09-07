@@ -51,6 +51,5 @@
 Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ## 🙇 Referências
-
 - https://github.com/kubernetes-sigs/kubespray
 - https://kubernetes.io/docs/setup/production-environment/tools/kubespray/
