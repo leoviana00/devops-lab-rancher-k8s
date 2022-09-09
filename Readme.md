@@ -39,7 +39,7 @@
 
 0. [Subir um balanceador dockerizado localmente.](/src/balanceador/Readme.md) 
 1. [Criar as Vm's.](/src/vagrant/Readme.md)
-2. [Subir um cluster kubernetes.](/src/kubespray/kubespray.md)
+2. [Subir um cluster kubernetes com o kubespray.](/src/kubespray/kubespray.md)
 3. [Instalar o Helm.](/src/helm/helm.md)
 4. [Deployar o Cert-manager.](/src/rancher/cert-manager.md)
 5. [Criar um emissor.](/src/rancher/cluster-issue.md)
