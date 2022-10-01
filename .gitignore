@@ -1,10 +1,9 @@
-*
-!.gitignore
-!src
-!src/**/*
-!images
-!images/**/*
-!LICENSE
-!Makefile
-!Readme.md
-!requirements.txt
+# Ansible
+site.retry
+*.retry
+**/.retry
+# Editor
+.vscode
+# vagrant
+*.vagrant
+**/.vagrant
